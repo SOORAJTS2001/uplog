@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [ "**" ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -43,7 +43,7 @@ jobs:
 
       - name: Run pytest
         working-directory: backend
-        run: pytest -q
+        run: uv run pytest -q
 
 
       - name: Run Go tests
