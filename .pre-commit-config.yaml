@@ -1,0 +1,75 @@
+repos:
+  # ----------------------------
+  # Basic hygiene
+  # ----------------------------
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  # ----------------------------
+  # Python lint + format (Ruff)
+  # ----------------------------
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff
+        args: [ --fix, --preview ]
+        stages: [ pre-commit, pre-push ]
+      - id: ruff-format
+        args: [ --preview ]
+        stages: [ pre-commit, pre-push ]
+
+  # ----------------------------
+  # Python security (Bandit)
+  # ----------------------------
+  - repo: https://github.com/PyCQA/bandit
+    rev: '1.7.5'
+    hooks:
+      - id: bandit
+        args: [ -ll ]
+        files: ^backend/  # optional
+
+  # ----------------------------
+  # Secrets detection
+  # ----------------------------
+  - repo: https://github.com/zricethezav/gitleaks
+    rev: v8.24.2
+    hooks:
+      - id: gitleaks
+
+  # # ----------------------------
+  # # Go formatting, vetting, linting
+  # # ----------------------------
+  # - repo: https://github.com/dnephin/pre-commit-golang
+  #   rev: v0.5.1
+  #   hooks:
+  #     - id: go-fmt
+  #     - id: go-vet
+  #     - id: go-imports
+  #     - id: go-mod-tidy
+  #     - id: golangci-lint  # only if your repo enables it
+
+  # ----------------------------
+  # Run tests before pushing (optional but recommended)
+  # ----------------------------
+  - repo: local
+    hooks:
+      - id: python-tests
+        name: Run pytest
+        entry: pytest
+        language: system
+        pass_filenames: false
+        stages: [ pre-push ]
+        files: ^backend/
+
+      - id: go-tests
+        name: Run go tests
+        entry: go test
+        language: system
+        pass_filenames: false
+        stages: [ pre-push ]
+        files: ^cli/

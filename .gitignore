@@ -1,0 +1,112 @@
+# =====================================
+# GLOBAL
+# =====================================
+*.log
+*.tmp
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+*.env
+
+# =====================================
+# IDE / EDITORS
+# =====================================
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# PyCharm / IntelliJ
+.idea/
+*.iml
+out/
+**/.idea/**/workspace.xml
+**/.idea/**/tasks.xml
+**/.idea/dictionaries
+**/.idea/shelf/
+**/.idea/**/contentModel.xml
+**/.idea/**/modules.xml
+
+# =====================================
+# GO (cli/)
+# =====================================
+
+# Build artifacts
+cli/bin/
+cli/build/
+cli/dist/
+cli/out/
+
+cli/*.exe
+cli/*.exe~
+cli/*.dll
+cli/*.so
+cli/*.dylib
+
+# Vendor dir (if used)
+cli/vendor/
+**/vendor/
+
+# Test coverage
+**/coverage.out
+
+# =====================================
+# PYTHON (backend/)
+# =====================================
+
+# Python bytecode
+backend/__pycache__/
+backend/**/__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Python virtual environment (inside backend)
+backend/venv/
+backend/.venv/
+
+# Python cache + tooling
+backend/.pytest_cache/
+backend/.mypy_cache/
+backend/.ruff_cache/
+backend/.hypothesis/
+backend/.cache/
+
+# Python build artifacts
+backend/build/
+backend/dist/
+backend/*.egg-info/
+backend/*.egg
+.eggs/
+wheels/
+pip-wheel-metadata/
+*.whl
+
+# =====================================
+# LOGS & RUNTIME
+# =====================================
+logs/
+uplog.log
+cli/logs/
+backend/logs/
+
+# =====================================
+# OS / MISC
+# =====================================
+experiments/
+*.bak
+*.old
+*.orig
+*.rej
+
+# =====================================
+# DOCKER
+# =====================================
+docker-data/
+**/docker-data/
+**/tmp/

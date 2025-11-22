@@ -1,0 +1,57 @@
+[project]
+name = "backend"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.121.3",
+    "httpx>=0.28.1",
+]
+
+[tool.uv]
+dev-dependencies = [
+    "pytest>=9.0.1",
+    "ruff>=0.14.6",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*py" = ["S101"]
+
+
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# Enable essential rules
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # import sorting
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "S",   # security
+    "COM", # commas
+    "PL",  # pylint-like rules (the reasonable ones)
+]
+
+# Ignore noisy / useless rules
+ignore = [
+    "E501",      # line length handled by formatter
+    "B905",      # zip() strict=False preference, too opinionated
+    "PLR2004",   # magic numbers
+]
+
+# Required: fix imports, format on save, etc.
+fix = true
+show-fixes = true
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "lf"
+
+# Use Black-like formatting
+skip-magic-trailing-comma = false

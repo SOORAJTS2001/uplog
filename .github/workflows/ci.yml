@@ -1,0 +1,51 @@
+name: CI
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python deps
+        working-directory: backend
+        run: |
+          pip install uv
+          uv pip install . --all-extras
+
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24"
+
+      - name: Install Go deps
+        working-directory: cli
+        run: go mod tidy
+
+
+      - name: Install pre-commit
+        run: pip install pre-commit
+
+      - name: Run pre-commit hooks
+        run: pre-commit run --all-files
+
+      - name: Run pytest
+        working-directory: backend
+        run: pytest -q
+
+
+      - name: Run Go tests
+        working-directory: cli
+        run: go test
