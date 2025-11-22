@@ -9,8 +9,9 @@ dependencies = [
     "httpx>=0.28.1",
 ]
 
-[tool.uv]
-dev-dependencies = [
+
+[dependency-groups]
+dev = [
     "pytest>=9.0.1",
     "ruff>=0.14.6",
 ]
@@ -38,6 +39,9 @@ select = [
 [tool.ruff]
 line-length = 100
 target-version = "py312"
+exclude = [
+    ".github",
+]
 
 # Required: fix imports, format on save, etc.
 fix = true
