@@ -14,6 +14,6 @@ def dummy_app():
 @pytest.fixture(scope="session")
 def session_id(dummy_app):
     res = dummy_app.post("/session/create")
-    sid = res.json()
+    sid = res.json()["session_id"]
     uuid.UUID(sid)  # raises ValueError if invalid
     return sid
