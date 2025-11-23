@@ -235,7 +235,7 @@ func runCmd(home, command string, args []string) {
 	cmdCancel()
 	// give uploader a moment to flush; then cancel context if still running
 	// (uploaderLoop watches ctx)
-	time.Sleep(250 * time.Millisecond)
+	time.Sleep(250*time.Millisecond)
 	cancel()
 	// wait goroutines
 	wg.Wait()
@@ -336,6 +336,7 @@ func copyStreamsToFile(stdout io.ReadCloser, stderr io.ReadCloser, outFile *os.F
 	go writeLines(stderrScanner)
 	wg.Wait()
 }
+
 
 // uploaderLoop tails the file and uploads new bytes in chunks
 func uploaderLoop(ctx context.Context, path string, sessionID string) error {
