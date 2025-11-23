@@ -6,6 +6,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -31,10 +32,13 @@ const (
 	backendUploadEndpoint        = backendDomain + "/session/upload"
 	backendSessionCreateEndpoint = backendDomain + "/session/create"
 	chunkSize                    = 32 * 1024 // 32 KB
-	pollInterval                 = 500 * time.Millisecond
+	batchLimit                   = 200
+	pollIntervalLimit            = 200 * time.Millisecond
 )
 
 var db *sql.DB
+var pollInterval = 200 * time.Millisecond
+var respJSON SessionCreateResponse
 
 type Session struct {
 	SessionID  string
@@ -46,27 +50,14 @@ type Session struct {
 	Mode       string
 }
 
-func detectLevel(line string) string {
-	up := strings.ToUpper(line)
-
-	switch {
-	case strings.Contains(up, "ERROR"):
-		return "ERROR"
-	case strings.Contains(up, "WARN"):
-		return "WARN"
-	case strings.Contains(up, "DEBUG"):
-		return "DEBUG"
-	case strings.Contains(up, "INFO"):
-		return "INFO"
-	default:
-		return "INFO"
-	}
-}
-
 type LogEntry struct {
 	Message   string `json:"message"`
 	Timestamp string `json:"timestamp"`
 	Level     string `json:"level"`
+}
+
+type SessionCreateResponse struct {
+    SessionID string `json:"session_id"`
 }
 
 func main() {
@@ -84,15 +75,22 @@ func main() {
 	initDB(home)
 
 	cmd := os.Args[1]
+
 	switch cmd {
+
 	case "run":
-		if len(os.Args) < 3 {
-			fmt.Println("usage: uplog run <command> [args...]")
-			os.Exit(1)
-		}
-		runCmd(home, os.Args[2], os.Args[3:])
+		runCmdWithFlags(home, os.Args[2:])
+
 	case "list":
 		listCmd(home)
+
+	case "delete":
+		if len(os.Args) < 3 {
+			fmt.Println("usage: uplog delete <session_id>")
+			os.Exit(1)
+		}
+		deleteCmd(home, os.Args[2])
+
 	default:
 		usage()
 	}
@@ -278,6 +276,29 @@ func listCmd(home string) {
 			ts, s.SizeBytes, s.LineCount, uploaded, constructShareURL(s.SessionID))
 	}
 }
+func deleteCmd(home, sessionID string) {
+	if sessionID == "--all" {
+		db.Exec(`DELETE FROM sessions`)
+		files, _ := filepath.Glob(filepath.Join(home, baseDir, tmpDir, "*.log"))
+		for _, f := range files {
+			_ = os.Remove(f)
+		}
+		fmt.Println("deleted all uplog sessions")
+		return
+	}
+	// delete from sqlite
+	_, err := db.Exec(`DELETE FROM sessions WHERE session_id = ?`, sessionID)
+	if err != nil {
+		fmt.Printf("failed to delete session: %v\n", err)
+		os.Exit(1)
+	}
+
+	// 2. remove temp log file if exists
+	tmpPath := filepath.Join(home, baseDir, tmpDir, sessionID+".log")
+	_ = os.Remove(tmpPath) // ignore error if not exists
+
+	fmt.Printf("deleted session %s\n", sessionID)
+}
 
 // -------------------- File copy & upload --------------------
 
@@ -365,7 +386,7 @@ func uploadNewChunks(path string, offset *int64, sessionID string) error {
 	scanner := bufio.NewScanner(f)
 	scanner.Buffer(make([]byte, 1024*1024), 1024*1024)
 
-	batch := make([]LogEntry, 0, 200)
+	batch := make([]LogEntry, 0, batchLimit)
 
 	for scanner.Scan() {
 		lineBytes := scanner.Bytes()
@@ -378,7 +399,7 @@ func uploadNewChunks(path string, offset *int64, sessionID string) error {
 
 		batch = append(batch, entry)
 
-		if len(batch) >= 200 {
+		if len(batch) >= batchLimit {
 			if err := sendBatch(sessionID, batch); err != nil {
 				return err
 			}
@@ -394,7 +415,7 @@ func uploadNewChunks(path string, offset *int64, sessionID string) error {
 	return scanner.Err()
 }
 
-// sendBatch sends a chunk to the backend. Replace with your real upload protocol.
+// sendBatch sends a chunk to the backend
 func sendBatch(sessionID string, batch []LogEntry) error {
 	body, _ := json.Marshal(batch)
 	fmt.Println(batch)
@@ -489,6 +510,54 @@ func listSessions() ([]Session, error) {
 
 // -------------------- Utilities --------------------
 
+func runCmdWithFlags(home string, args []string) {
+    fs := flag.NewFlagSet("uplog run", flag.ExitOnError)
+
+    // poll is an int (in milliseconds)
+    poll := fs.Int("poll", int(pollIntervalLimit/time.Millisecond), "Polling interval in milliseconds")
+
+    fs.Parse(args)
+
+    if fs.NArg() < 1 {
+        fmt.Println("usage: uplog run [--poll N] <command> [args...]")
+        os.Exit(1)
+    }
+
+    // convert ms → time.Duration
+    pollInterval = time.Duration(*poll) * time.Millisecond
+
+    // enforce minimum poll interval (to avoid hammering backend)
+    if pollInterval < pollIntervalLimit {
+        fmt.Printf("Cannot poll below %v ms. Try --poll >= %v.\n",
+            pollIntervalLimit/time.Millisecond,
+            pollIntervalLimit/time.Millisecond)
+        os.Exit(1)
+    }
+
+    command := fs.Arg(0)
+    commandArgs := fs.Args()[1:]
+
+    runCmd(home, command, commandArgs)
+}
+
+
+func detectLevel(line string) string {
+	up := strings.ToUpper(line)
+
+	switch {
+	case strings.Contains(up, "ERROR"):
+		return "ERROR"
+	case strings.Contains(up, "WARN"):
+		return "WARN"
+	case strings.Contains(up, "DEBUG"):
+		return "DEBUG"
+	case strings.Contains(up, "INFO"):
+		return "INFO"
+	default:
+		return "INFO"
+	}
+}
+
 func boolToInt(b bool) int {
 	if b {
 		return 1
@@ -528,10 +597,10 @@ func requestSessionIDFromBackend() (string, error) {
 	defer resp.Body.Close()
 	if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 		// read body as id (assume plain text or JSON id)
-		b, _ := io.ReadAll(resp.Body)
-		id := strings.TrimSpace(string(b))
-		if id != "" {
-			return id, nil
+		json.NewDecoder(resp.Body).Decode(&respJSON)
+		sessionID := respJSON.SessionID
+		if sessionID != "" {
+			return sessionID, nil
 		}
 	}
 	// fallback: return error so caller can use uuid

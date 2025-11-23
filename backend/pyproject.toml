@@ -21,6 +21,7 @@ dev = [
 
 [tool.ruff.lint]
 ignore = [
+    "COM812",
     "E501",      # line length handled by formatter
     "B905",      # zip() strict=False preference, too opinionated
     "PLR2004",   # magic numbers
