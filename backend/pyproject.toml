@@ -21,6 +21,7 @@ dev = [
 
 [tool.ruff.lint]
 ignore = [
+    "W291",#trailing whitespace
     "COM812",
     "E501",      # line length handled by formatter
     "B905",      # zip() strict=False preference, too opinionated

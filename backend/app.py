@@ -15,4 +15,7 @@ async def start_session(request: Request) -> SessionResponseBaseModel:
 
 
 @app.post("/session/upload")
-async def upload_session(request: Request, session_id: str, logs: list[LogEntryBaseModel]): ...
+async def upload_session(
+    request: Request, session_id: str, tag: str, logs: list[LogEntryBaseModel]
+):
+    print(session_id, tag)

@@ -39,6 +39,7 @@ const (
 var db *sql.DB
 var pollInterval = 200 * time.Millisecond
 var respJSON SessionCreateResponse
+var tag *string
 
 
 type Session struct {
@@ -49,6 +50,7 @@ type Session struct {
 	SizeBytes  int64
 	IsUploaded bool
 	Mode       string
+	Tag        string
 }
 
 type LogEntry struct {
@@ -143,7 +145,8 @@ func initDB(home string) {
 		line_count   INTEGER DEFAULT 0,
 		size_bytes   INTEGER DEFAULT 0,
 		is_uploaded  INTEGER DEFAULT 0,
-		mode         TEXT NOT NULL
+		mode         TEXT NOT NULL,
+		tag			 TEXT
 	);
 	CREATE INDEX IF NOT EXISTS idx_sessions_created_at ON sessions(created_at);
 	CREATE INDEX IF NOT EXISTS idx_sessions_expired_at ON sessions(expired_at);
@@ -173,7 +176,7 @@ func runCmd(home, command string, args []string) {
 	}
 
 	// insert session record
-	err = insertSession(sessionID, createdAt, sql.NullTime{}, 0, 0, false, mode)
+	err = insertSession(sessionID, createdAt, sql.NullTime{}, 0, 0, false, mode,*tag)
 	if err != nil {
 		fmt.Printf("failed to insert session: %v\n", err)
 		os.Exit(1)
@@ -276,8 +279,8 @@ func listCmd(home string) {
 		if s.IsUploaded {
 			uploaded = "yes"
 		}
-		fmt.Printf("%s | %d bytes | %d lines | uploaded: %s | %s\n",
-			ts, s.SizeBytes, s.LineCount, uploaded, constructShareURL(s.SessionID))
+		fmt.Printf("%s | %s | %d bytes | %d lines | uploaded: %s | %s\n",
+			ts, s.Tag, s.SizeBytes, s.LineCount, uploaded, constructShareURL(s.SessionID))
 	}
 }
 func deleteCmd(home, sessionID string) {
@@ -431,7 +434,7 @@ func uploadNewChunks(path string, offset *int64, sessionID string) error {
 func sendBatch(sessionID string, batch []LogEntry) error {
 	body, _ := json.Marshal(batch)
 	req, err := http.NewRequest("POST",
-		backendUploadEndpoint+"?session_id="+sessionID,
+		backendUploadEndpoint+"?session_id="+sessionID+"&"+"tag="+*tag,
 		bytes.NewReader(body))
 	if err != nil {
 		return err
@@ -460,16 +463,16 @@ func sendBatch(sessionID string, batch []LogEntry) error {
 
 // -------------------- DB helpers --------------------
 
-func insertSession(sessionID string, createdAt time.Time, expiredAt sql.NullTime, lines int64, bytes int64, isUploaded bool, mode string) error {
+func insertSession(sessionID string, createdAt time.Time, expiredAt sql.NullTime, lines int64, bytes int64, isUploaded bool, mode string,tag string) error {
 	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
 	defer tx.Rollback()
 	_, err = tx.Exec(`
-	INSERT OR REPLACE INTO sessions(session_id, created_at, expired_at, line_count, size_bytes, is_uploaded, mode)
-	VALUES(?,?,?,?,?,?,?)
-	`, sessionID, createdAt.Format(time.RFC3339), nullTimeToString(expiredAt), lines, bytes, boolToInt(isUploaded), mode)
+	INSERT OR REPLACE INTO sessions(session_id, created_at, expired_at, line_count, size_bytes, is_uploaded, mode, tag)
+	VALUES(?,?,?,?,?,?,?,?)
+	`, sessionID, createdAt.Format(time.RFC3339), nullTimeToString(expiredAt), lines, bytes, boolToInt(isUploaded), mode, tag)
 	if err != nil {
 		return err
 	}
@@ -492,7 +495,7 @@ func markSessionUploaded(sessionID string) error {
 }
 
 func listSessions() ([]Session, error) {
-	rows, err := db.Query(`SELECT session_id, created_at, expired_at, line_count, size_bytes, is_uploaded, mode FROM sessions ORDER BY created_at DESC`)
+	rows, err := db.Query(`SELECT session_id, created_at, expired_at, line_count, size_bytes, is_uploaded, mode, tag FROM sessions ORDER BY created_at DESC`)
 	if err != nil {
 		return nil, err
 	}
@@ -503,7 +506,7 @@ func listSessions() ([]Session, error) {
 		var createdAtStr string
 		var expiredAtStr sql.NullString
 		var isUploadedInt int
-		if err := rows.Scan(&s.SessionID, &createdAtStr, &expiredAtStr, &s.LineCount, &s.SizeBytes, &isUploadedInt, &s.Mode); err != nil {
+		if err := rows.Scan(&s.SessionID, &createdAtStr, &expiredAtStr, &s.LineCount, &s.SizeBytes, &isUploadedInt, &s.Mode, &s.Tag); err != nil {
 			return nil, err
 		}
 		s.CreatedAt, _ = time.Parse(time.RFC3339, createdAtStr)
@@ -526,7 +529,7 @@ func runCmdWithFlags(home string, args []string) {
 
     // poll is an int (in milliseconds)
     poll := fs.Int("poll", int(pollIntervalLimit/time.Millisecond), "Polling interval in milliseconds")
-
+	tag = fs.String("tag","","Optional tag name, to tag the session")
     fs.Parse(args)
 
     if fs.NArg() < 1 {
