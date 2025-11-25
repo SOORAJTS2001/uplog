@@ -1,7 +1,6 @@
 import logging
-import time
 
 logging.basicConfig(level=logging.INFO)
-for i in range(500):
-    print("Gotcha")
-    time.sleep(0.01)
+for i in range(10000):
+    # Use flush=True to ensure immediate output
+    print(i)
