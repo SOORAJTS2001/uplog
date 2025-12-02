@@ -1,43 +1,25 @@
-package main
+package tail
 
 import (
 	"bufio"
 	"cli/api"
-	"cli/constants"
 	"cli/models"
 	"cli/tail/utils"
-	"flag"
 	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
 	"os"
 	"strings"
 	"time"
+	"sync"
 )
 
 var batchedLogs []models.LogEntry
 var backendDisabled bool = false
 
-func argParser() (int, int, string) {
-	poll := flag.Int("poll", constants.PollIntervalLimit, "Default polling time in milliseconds")
-	batchSize := flag.Int("batch", constants.BatchLimit, "Default batch size")
-	tag := flag.String("tag", "", "Tag for the session")
-
-	flag.Parse() // MUST PARSE FLAGS
-
-	return *poll, *batchSize, *tag
-}
-
-func main() {
-	pollInterval, batchSize, tag := argParser()
+func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string, sessionId string,filePath string) {
+	defer wg.Done()
 	fmt.Println("Poll:", pollInterval, "Batch:", batchSize)
-
-	sessionId, err := api.SetupSession()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	filePath := "sample.log"
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -66,6 +48,9 @@ func main() {
 			scanner := bufio.NewScanner(f)
 			for scanner.Scan() {
 				line := scanner.Text()
+				if backendDisabled{
+					return
+				}
 				if line == "EOF" {
 					api.BatchUpload(batchedLogs, sessionId, tag, 3, &backendDisabled)
 					os.Exit(0)
@@ -74,13 +59,13 @@ func main() {
 					api.BatchUpload(batchedLogs, sessionId, tag, 3, &backendDisabled)
 					batchedLogs = batchedLogs[:0]
 				}
-				const start = "<uplog>"
-				const end = "</uplog>"
+				start := fmt.Sprintf("<%s>",sessionId)
+				end := fmt.Sprintf("</%s>",sessionId)
 
 				if strings.HasPrefix(line, start) && strings.HasSuffix(line, end) {
 					content := line[len(start) : len(line)-len(end)]
 					entry := models.LogEntry{
-						Message:   line,
+						Message:   content,
 						Timestamp: time.Now().UTC().Format(time.RFC3339),
 						Level:     utils.DetectLevel(line),
 					}

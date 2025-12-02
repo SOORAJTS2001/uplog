@@ -24,6 +24,6 @@ const (
 	BackendUserCreateEndpoint	 = BackendDomain + "/user/create"
 	BackendSessionCreateEndpoint = BackendDomain + "/session/create"
 	ChunkSize                    = 32 * 1024 // 32 KB
-	BatchLimit                   = 10
+	BatchLimit                   = 200
 	PollIntervalLimit            = 100
 )

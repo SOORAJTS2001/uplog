@@ -1,20 +1,18 @@
-package main
+package executor
 
 import (
 	"bufio"
 	"fmt"
 	"os"
 	"os/exec"
-
+	"sync"
 	"github.com/creack/pty"
 )
 
-func main() {
+func Executor(wg *sync.WaitGroup,args []string,sessionId string,filename string) {
+	defer wg.Done()
 	// Replace with any program you want
-	args := os.Args
-	fmt.Println(args)
-	fmt.Println(args[1], args[2:])
-	cmd := exec.Command(args[1], args[2:]...)
+	cmd := exec.Command(args[0], args[1:]...)
 
 	// Start command inside a PTY
 	ptmx, err := pty.Start(cmd)
@@ -22,17 +20,8 @@ func main() {
 		panic(err)
 	}
 	defer ptmx.Close()
-
-	// 1. Truncate (recreate) the file
-	f, err := os.OpenFile("sample.log",
-		os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0644)
-	if err != nil {
-		panic(err)
-	}
-	f.Close() // important — close the truncate handle
-
 	// 2. Open *same file* for appending
-	logFile, err := os.OpenFile("sample.log",
+	logFile, err := os.OpenFile(filename,
 		os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	if err != nil {
 		panic(err)
@@ -41,9 +30,12 @@ func main() {
 
 	// Read PTY output live
 	scanner := bufio.NewScanner(ptmx)
+	start := fmt.Sprintf("<%s>",sessionId)
+	end := fmt.Sprintf("</%s>",sessionId)
 	for scanner.Scan() {
 		line := scanner.Text()
-		line = "<uplog>" + line + "</uplog>\n"
+
+		line = start + line + end + "\n"
 
 		fmt.Println(line)
 		// Write live to file
