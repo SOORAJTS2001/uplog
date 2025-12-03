@@ -52,7 +52,8 @@ indent-style = "space"
 line-ending = "lf"
 exclude = [
     ".github",
-    "cli"
+    "cli",
+    "frontend"
 ]
 
 # Use Black-like formatting
