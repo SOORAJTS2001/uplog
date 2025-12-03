@@ -59,7 +59,6 @@ export default function Documentation() {
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
           </NavLink>
-          <span className="text-xl font-bold font-display neon-text">Live Logs</span>
         </div>
       </header>
 
@@ -68,17 +67,20 @@ export default function Documentation() {
         {/* Hero */}
         <div className="space-y-4">
           <h1 className="text-4xl md:text-5xl font-bold font-display">
-            <span className="neon-text">Documentation</span>
+            <span className="text">Documentation</span>
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl">
             Learn how to integrate Live Logs into your application and start streaming logs in minutes.
+          </p>
+          <p className="text-xl text-muted-foreground max-w-2xl">
+            Please note that uplog is currently under active development and this page may change
           </p>
         </div>
 
         {/* Quick Start */}
         <Section
           title="Quick Start"
-          description="Get up and running with Live Logs in under 5 minutes."
+          description="Get up and running with Live Logs in under 2 minutes."
         >
           <div className="space-y-6">
             <div className="flex items-start gap-4">
@@ -88,7 +90,7 @@ export default function Documentation() {
               <div className="space-y-3 flex-1">
                 <h3 className="font-semibold text-foreground">Create a Stream</h3>
                 <p className="text-muted-foreground text-sm">
-                  Click "Start for Free" on the homepage to generate a unique stream URL. No signup required.
+                  Install our lightweight cli tool `uplog`
                 </p>
               </div>
             </div>
@@ -98,19 +100,12 @@ export default function Documentation() {
                 <span className="text-accent font-bold text-sm">2</span>
               </div>
               <div className="space-y-3 flex-1">
-                <h3 className="font-semibold text-foreground">Send Logs via HTTP</h3>
                 <p className="text-muted-foreground text-sm">
-                  POST your logs to our API endpoint with your stream ID.
+                  Run your code with our tool
                 </p>
                 <CodeBlock
                   language="bash"
-                  code={`curl -X POST https://api.livelogs.dev/stream/{YOUR_STREAM_ID} \\
-  -H "Content-Type: application/json" \\
-  -d '{
-    "message": "User logged in successfully",
-    "timestamp": "2024-01-15T10:30:00Z",
-    "log_level": "INFO"
-  }'`}
+                  code={`$ uplog run python main.py`}
                 />
               </div>
             </div>
@@ -122,7 +117,7 @@ export default function Documentation() {
               <div className="space-y-3 flex-1">
                 <h3 className="font-semibold text-foreground">View in Real-Time</h3>
                 <p className="text-muted-foreground text-sm">
-                  Open your dashboard URL and watch logs appear instantly as they're sent.
+                  Open your dashboard URL from uplog and watch logs appear instantly as they're sent.
                 </p>
               </div>
             </div>
@@ -169,12 +164,12 @@ export default function Documentation() {
         </Section>
 
         {/* Integration Examples */}
-        <Section
+        {/*
+        {<Section
           title="Integration Examples"
           description="Copy-paste examples for popular languages and frameworks."
         >
           <div className="space-y-8">
-            {/* Node.js */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Terminal className="w-5 h-5 text-accent" />
@@ -203,7 +198,6 @@ sendLog('ERROR', 'Database connection failed');`}
               />
             </div>
 
-            {/* Python */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Terminal className="w-5 h-5 text-accent" />
@@ -230,7 +224,6 @@ send_log('WARN', 'High memory usage detected')`}
               />
             </div>
 
-            {/* Go */}
             <div className="space-y-3">
               <div className="flex items-center gap-2">
                 <Terminal className="w-5 h-5 text-accent" />
@@ -273,9 +266,10 @@ func sendLog(level, message string) error {
               />
             </div>
           </div>
-        </Section>
+        </Section>}
+                */}
 
-        {/* HTTP Streaming */}
+        {/*
         <Section
           title="Receiving Logs (HTTP Streaming)"
           description="Connect to the stream endpoint to receive logs in real-time."
@@ -306,8 +300,9 @@ eventSource.onerror = (error) => {
             />
           </div>
         </Section>
+        HTTP Streaming */}
 
-        {/* Best Practices */}
+        {/*
         <Section title="Best Practices">
           <div className="grid md:grid-cols-2 gap-4">
             <div className="bg-card/30 border border-border rounded-lg p-4 space-y-2">
@@ -331,14 +326,14 @@ eventSource.onerror = (error) => {
           </div>
         </Section>
 
-        {/* CTA */}
         <div className="text-center py-8">
           <NavLink to="/">
             <Button variant="hero" size="lg" className="font-semibold">
-              Start Streaming Logs
+              Try
             </Button>
           </NavLink>
         </div>
+        */}
       </main>
 
       {/* Footer */}

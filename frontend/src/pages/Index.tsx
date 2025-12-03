@@ -61,7 +61,7 @@ const Index = () => {
 
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-2xl mx-auto animate-slide-up" style={{ animationDelay: '0.1s' }}>
-              Anonymous log monitoring that works in seconds.
+              Anonymous log monitoring that works in milli-seconds.
               No signup, no dependencies, and no code rewrites -
               just plug in the CLI and watch your logs stream live.
             </p>
@@ -198,17 +198,17 @@ const Index = () => {
               <StepCard
                 number="01"
                 title="Install our cli"
-                description="Click the button to generate a unique stream URL. No sign-up required."
+                description="By just a simple curl command"
               />
               <StepCard
                 number="02"
                 title="Run you code with uplog"
-                description="POST logs to your stream endpoint via HTTP. We handle the rest."
+                description="A ligthweight background process will spawn to monitor and send logs"
               />
               <StepCard
                 number="03"
                 title="Watch live"
-                description="Open your link and watch logs appear in real-time."
+                description="Open your link from uplog and watch logs appear in real-time."
               />
             </div>
 
