@@ -27,3 +27,8 @@ type SessionCreateResponse struct {
 type UserCreateResponse struct{
 	UserId string `json:"user_id"`
 }
+
+type Configurations struct{
+	UserId string `json:"user_id"`
+	ApiKey string `json:"api_key"`
+}

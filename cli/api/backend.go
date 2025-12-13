@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func BatchUpload(batch []models.LogEntry, sessionId string, tag string, retries int, backendDisabled *bool) error {
+func BatchUpload(batch []models.LogEntry,userId string, sessionId string, tag string, retries int, backendDisabled *bool) error {
 	fmt.Println("Trying to batch upload")
 	if len(batch) == 0 {
 		return nil
@@ -39,10 +39,8 @@ func BatchUpload(batch []models.LogEntry, sessionId string, tag string, retries 
 		}
 
 		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("User-Id",userId)
 		if key := os.Getenv("UPLOG_API_KEY"); key != "" {
-			req.Header.Set("Authorization", "Bearer "+key)
-		}
-		if key := os.Getenv("USER_ID"); key != "" {
 			req.Header.Set("Authorization", "Bearer "+key)
 		}
 
@@ -97,9 +95,9 @@ func createSession(client *http.Client, apiKey string, userId string) (string, e
 	req.Header.Set("Authorization", "Bearer "+apiKey)
 	req.Header.Set("User-Id", userId)
 
-	resp, err := client.Do(req)
+	resp, err := client.Do(req,)
 	if err != nil {
-		return "", fmt.Errorf("create sessoin request failed: %w", err)
+		return "", fmt.Errorf("create session request failed: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -112,25 +110,41 @@ func createSession(client *http.Client, apiKey string, userId string) (string, e
 }
 
 // SendConfig returns (apiKey, userID, error)
-func SetupSession() (string, error) {
+func SetupSession() (string,string,string, error) {
 	var err error
 	client := &http.Client{Timeout: 3 * time.Second}
-
-	apiKey := os.Getenv("UPLOG_API_KEY")
-	userId := os.Getenv("UPLOG_USER_ID")
+	fileBytes, err := os.ReadFile(constants.CredentialsFile)
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+	var config models.Configurations
+	config_err:=json.Unmarshal(fileBytes,&config)
+	if config_err!=nil{
+		// error even after the file has content
+		if len(fileBytes) != 0{
+			fmt.Println("Error",config_err)
+		}
+	}
+	apiKey := config.ApiKey
+	userId := config.UserId
 
 	if userId == "" {
 		var err error
-		userId, err = getUserId(client)
-		os.Setenv("UPLOG_USER_ID",userId)
+		userId, _ = getUserId(client)
+		config.UserId = userId
+		configBytes,err :=json.Marshal(config)
 		if err != nil {
-			return "", err
+			return "","","", err
 		}
+		os.WriteFile(constants.CredentialsFile,configBytes,0o700)
 	}
 	sessionId, err := createSession(client, apiKey, userId)
+	sessionUrl:="subject."+userId+"."+sessionId
+	fmt.Printf("Uploading Logs at %s?session_id=%s\n",constants.Domain,sessionUrl)
+	time.Sleep(2*time.Second)
 	if err != nil {
-		return "", err
+		return "","","", err
 	}
 
-	return sessionId, nil
+	return apiKey,userId,sessionId, nil
 }

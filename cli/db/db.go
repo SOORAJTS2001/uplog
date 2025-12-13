@@ -11,13 +11,13 @@ import (
 
 )
 
-func dbPath(home string) string {
-	return filepath.Join(home, constants.BaseDir, constants.ConfigDir, constants.SqliteFileName)
+func dbPath() string {
+	return filepath.Join(constants.ConfigDir, constants.SqliteFileName)
 }
 
-func InitDB(home string) {
+func InitDB() {
 	var err error
-	db, err := sql.Open("sqlite3", dbPath(home))
+	db, err := sql.Open("sqlite3", dbPath())
 	if err != nil {
 		fmt.Printf("failed to open sqlite: %v\n", err)
 		os.Exit(1)

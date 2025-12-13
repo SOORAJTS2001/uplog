@@ -5,8 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "asyncpg>=0.31.0",
     "fastapi[standard]>=0.121.3",
     "httpx>=0.28.1",
+    "nats-py>=2.12.0",
+    "sqlalchemy[asyncio]>=2.0.44",
 ]
 
 
@@ -26,6 +29,8 @@ ignore = [
     "E501",      # line length handled by formatter
     "B905",      # zip() strict=False preference, too opinionated
     "PLR2004",   # magic numbers
+    "B008",  #function call on function args
+    "PLE0604", #export variables in __all__
 ]
 select = [
     "E",   # pycodestyle errors
@@ -52,7 +57,7 @@ indent-style = "space"
 line-ending = "lf"
 exclude = [
     ".github",
-    "cli",
+    "./cli",
     "frontend"
 ]
 

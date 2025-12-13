@@ -1,13 +1,14 @@
 package utils
 
 import (
-	"path/filepath"
-	"os"
 	"cli/constants"
+	"fmt"
+	"os"
 )
 
-func SetupDirectories(home string) {
-	base := filepath.Join(home, constants.BaseDir)
-	_ = os.MkdirAll(filepath.Join(base, constants.ConfigDir), 0o700)
-	_ = os.MkdirAll(filepath.Join(base, constants.TmpDir), 0o700)
+func SetupDirectories() {
+	fmt.Println(constants.CredentialsFile)
+	_ = os.MkdirAll(constants.ConfigDir, 0o700)
+	_ = os.MkdirAll(constants.TmpDir, 0o700)
+	_,_ = os.OpenFile(constants.CredentialsFile,os.O_CREATE|os.O_EXCL,0o700)
 }
