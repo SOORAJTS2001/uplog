@@ -15,6 +15,7 @@ from datetime import datetime, timezone, timedelta
 import nats
 from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
+import json
 
 
 @asynccontextmanager
@@ -28,6 +29,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator:
 
 async def subject_consumer(subject_name: str):
     sub = await app.state.js.subscribe(subject_name)
+    temp_data = []
     try:
         while True:
             try:
@@ -38,9 +40,10 @@ async def subject_consumer(subject_name: str):
                 continue
 
             data = msg.data.decode("utf-8")
-
-            # SSE format
-            yield f"data: {data}\n\n"
+            if len(temp_data) == 10:
+                yield f"data: {json.dumps(temp_data)}\n\n"
+                temp_data = []
+            temp_data.append(json.loads(data))
             await asyncio.sleep(0.1)
             await msg.ack()
 
@@ -68,7 +71,7 @@ async def get_db_session() -> AsyncGenerator[AsyncSession, None]:
 app = FastAPI(lifespan=lifespan)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:9000"],
+    allow_origins=["http://localhost:8080"],
     allow_credentials=True,
     allow_methods=["*"],  # Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
     allow_headers=["*"],  # Allows all headers

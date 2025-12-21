@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
+import LogViewer from "./pages/LiveLogging";
 import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/docs" element={<Documentation />} />
           <Route path="/logs/:streamId" element={<Dashboard />} />
+          <Route path="/live-logs/:streamId" element={<LogViewer/>}></Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

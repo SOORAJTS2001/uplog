@@ -20,7 +20,7 @@ const (
 	tmpDir                       = "tmp"
 	credentialsFileName          = "credentials.json"
 	SqliteFileName               = "db.sqlite"
-	Domain                       = "http://localhost:9000/stream_ui.html"
+	Domain                       = "http://localhost:8080/live-logs/"
 	LogsDomain                   = Domain + "/session="
 	BackendDomain                = "http://127.0.0.1:8000"
 	BackendUploadEndpoint        = BackendDomain + "/session/upload"

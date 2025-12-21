@@ -140,7 +140,7 @@ func SetupSession() (string,string,string, error) {
 	}
 	sessionId, err := createSession(client, apiKey, userId)
 	sessionUrl:="subject."+userId+"."+sessionId
-	fmt.Printf("Uploading Logs at %s?session_id=%s\n",constants.Domain,sessionUrl)
+	fmt.Printf("Uploading Logs at %s%s\n",constants.Domain,sessionUrl)
 	time.Sleep(2*time.Second)
 	if err != nil {
 		return "","","", err

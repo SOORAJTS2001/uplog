@@ -13,6 +13,7 @@ interface LogTableProps {
 export function LogTable({ logs, selectedLevels, autoScroll, newLogIds }: LogTableProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+  console.log(logs)
 
   const filteredLogs = logs.filter((log) =>
     selectedLevels.length === 0 || selectedLevels.includes(log.log_level)
