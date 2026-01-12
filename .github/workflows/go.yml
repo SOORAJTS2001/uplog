@@ -1,0 +1,63 @@
+name: Build and Upload GO CLI Artifact
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        include:
+          # Linux
+          - os: linux
+            arch: amd64
+          - os: linux
+            arch: arm64
+
+          # macOS
+          - os: darwin
+            arch: amd64
+          - os: darwin
+            arch: arm64
+
+          # Windows
+          - os: windows
+            arch: amd64
+          - os: windows
+            arch: arm64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.24.2"
+          cache-dependency-path: cli/go.sum
+
+      - name: Build uplog
+        run: |
+          cd cli
+          mkdir -p dist
+
+          BIN=uplog
+          OUT=${BIN}-${{ matrix.os }}-${{ matrix.arch }}
+
+          if [ "${{ matrix.os }}" = "windows" ]; then
+            OUT="${OUT}.exe"
+          fi
+
+          GOOS=${{ matrix.os }} \
+          GOARCH=${{ matrix.arch }} \
+          go build -o dist/$OUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: uplog-${{ matrix.os }}-${{ matrix.arch }}
+          path: cli/dist/*
