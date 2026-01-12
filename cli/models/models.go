@@ -2,7 +2,6 @@ package models
 
 import (
 	"time"
-	"database/sql"
 )
 
 type LogEntry struct {
@@ -13,12 +12,13 @@ type LogEntry struct {
 type Session struct {
 	SessionId  string
 	CreatedAt  time.Time
-	ExpiredAt  sql.NullTime
-	LineCount  int64
-	SizeBytes  int64
+	ExpiresAt  time.Time
+	LineCount  int
+	SizeBytes  int
 	IsUploaded bool
 	Mode       string
 	Tag        string
+	Url		   string
 }
 
 type SessionCreateResponse struct {

@@ -54,11 +54,11 @@ func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string
 					return
 				}
 				if line == "EOF" {
-					api.BatchUpload(batchedLogs,setup.UserId, sessionId, tag, 3, &backendDisabled)
+					api.BatchUpload(setup.DB_con,batchedLogs,setup.UserId, sessionId, tag, 3, &backendDisabled)
 					os.Exit(0)
 				}
 				if len(batchedLogs) == batchSize {
-					api.BatchUpload(batchedLogs,setup.UserId, sessionId, tag, 3, &backendDisabled)
+					api.BatchUpload(setup.DB_con,batchedLogs,setup.UserId, sessionId, tag, 3, &backendDisabled)
 					batchedLogs = batchedLogs[:0]
 				}
 				start := fmt.Sprintf("<%s>",sessionId)

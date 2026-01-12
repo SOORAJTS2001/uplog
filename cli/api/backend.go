@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"cli/constants"
 	"cli/models"
+	"cli/db"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -13,7 +15,7 @@ import (
 	"time"
 )
 
-func BatchUpload(batch []models.LogEntry,userId string, sessionId string, tag string, retries int, backendDisabled *bool) error {
+func BatchUpload(db_con *sql.DB,batch []models.LogEntry,userId string, sessionId string, tag string, retries int, backendDisabled *bool) error {
 	fmt.Println("Trying to batch upload")
 	if len(batch) == 0 {
 		return nil
@@ -56,6 +58,7 @@ func BatchUpload(batch []models.LogEntry,userId string, sessionId string, tag st
 		resp.Body.Close()
 
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			db.UpdateSessionById(db_con,sessionId,batch)
 			return nil
 		}
 
@@ -78,13 +81,13 @@ func getUserId(client *http.Client) (string, error) {
 	req, _ := http.NewRequest("POST", constants.BackendUserCreateEndpoint, nil)
 	resp, err := client.Do(req)
 	if err != nil {
-		return "", fmt.Errorf("create user request failed: %w", err)
+		return "", fmt.Errorf("user creation failed: %w", err)
 	}
 	defer resp.Body.Close()
 
 	var userCreateResponse models.UserCreateResponse
 	if err := json.NewDecoder(resp.Body).Decode(&userCreateResponse); err != nil {
-		return "", fmt.Errorf("decode user create response: %w", err)
+		return "", fmt.Errorf("user creation failed: %w", err)
 	}
 
 	return userCreateResponse.UserId, nil
@@ -103,7 +106,7 @@ func createSession(client *http.Client, apiKey string, userId string) (string, e
 
 	var sessionCreateResponse models.SessionCreateResponse
 	if err := json.NewDecoder(resp.Body).Decode(&sessionCreateResponse); err != nil {
-		return "", fmt.Errorf("decode user create response: %w", err)
+		return "", fmt.Errorf("create session request failed: %w", err)
 	}
 
 	return sessionCreateResponse.SessionId, nil
