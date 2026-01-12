@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import LogViewer from "./pages/LiveLogging";
+import CLIDownloadRedirect from "./pages/Redirect";
 import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
 
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/docs" element={<Documentation />} />
           <Route path="/demo-logs/:streamId" element={<Dashboard />} />
           <Route path="/live-logs/:streamId" element={<LogViewer/>}></Route>
+          <Route path="/install.sh" element={<CLIDownloadRedirect/>}></Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
