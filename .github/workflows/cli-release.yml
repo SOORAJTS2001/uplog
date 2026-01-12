@@ -1,10 +1,12 @@
-name: Build and Upload GO CLI Artifact
+name: Build and Release GO CLI
+
+permissions:
+  contents: write
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -13,19 +15,14 @@ jobs:
     strategy:
       matrix:
         include:
-          # Linux
           - os: linux
             arch: amd64
           - os: linux
             arch: arm64
-
-          # macOS
           - os: darwin
             arch: amd64
           - os: darwin
             arch: arm64
-
-          # Windows
           - os: windows
             arch: amd64
           - os: windows
@@ -35,7 +32,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version: "1.24.2"
           cache-dependency-path: cli/go.sum
@@ -54,10 +51,18 @@ jobs:
 
           GOOS=${{ matrix.os }} \
           GOARCH=${{ matrix.arch }} \
+          CGO_ENABLED=0 \
           go build -o dist/$OUT
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: uplog-${{ matrix.os }}-${{ matrix.arch }}
-          path: cli/dist/*
+      - name: Upload to GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cd cli
+          gh release create ${{ github.ref_name }} \
+            --title "${{ github.ref_name }}" \
+            --notes "uplog CLI release" \
+            --draft=false \
+            --prerelease=false || true
+
+          gh release upload ${{ github.ref_name }} dist/* --clobber
