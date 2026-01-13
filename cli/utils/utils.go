@@ -16,6 +16,21 @@ func SetupDirectories() {
 	_,_ = os.OpenFile(constants.CredentialsFile,os.O_CREATE|os.O_EXCL,0o700)
 }
 
+func Help(){
+	fmt.Println("Visit https://www.uplog.live/docs for full documentation")
+	fmt.Println()
+	fmt.Println("Reserved commands")
+	fmt.Println("Usage `uplog <command>`")
+	fmt.Println("\t\t\t","list - ", "To list your entire session data")
+	fmt.Println("\t\t\t","purge - ","To purge the entire session data including the temp log files")
+	fmt.Println("\t\t\t","delete - ","To delete an existing session data")
+	fmt.Println("Reserved flags")
+	fmt.Println("Usage `uplog --flag`")
+	fmt.Println("\t\t\t","batch - ","Batch size to upload for the session")
+	fmt.Println("\t\t\t","poll - ","How often should it be polled for update")
+	fmt.Println("\t\t\t","tag - ","Tag name for the session")
+}
+
 func NewSession(sessionId string,tag string,userId string) *models.Session {
 	now := time.Now()
 	var url string = constants.Domain+"subject."+userId+"."+sessionId
@@ -95,12 +110,14 @@ func PurgeLogs(db_con *sql.DB){
 	if err!=nil{
 		fmt.Println("Purging sessions failed due to ",err)
 	}
+	fmt.Println("Successfully purged all sessions")
 }
 func DeleteLog(sessionId string,db_con *sql.DB){
 	err:=db.DeleteSessionById(sessionId,db_con)
 	if err!=nil{
 		fmt.Println("Deleting log failed due to",err)
 	}
+	fmt.Println("Successfully deleted session")
 }
 func UploadLog(args []string){
 

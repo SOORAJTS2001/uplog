@@ -6,29 +6,37 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import LogViewer from "./pages/LiveLogging";
-import CLIDownloadRedirect from "./pages/Redirect";
 import Documentation from "./pages/Documentation";
 import NotFound from "./pages/NotFound";
+import { inject } from "@vercel/analytics";
+import { useEffect } from "react";
+import {SpeedInsights} from "@vercel/speed-insights/react";
+
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner position="top-right" theme="dark" />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/docs" element={<Documentation />} />
-          <Route path="/demo-logs/:streamId" element={<Dashboard />} />
-          <Route path="/live-logs/:streamId" element={<LogViewer/>}></Route>
-          <Route path="/install.sh" element={<CLIDownloadRedirect/>}></Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  useEffect(() => {
+    inject();
+  }, []);
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner position="top-right" theme="dark" />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/docs" element={<Documentation />} />
+            <Route path="/demo-logs/:streamId" element={<Dashboard />} />
+            <Route path="/live-logs/:streamId" element={<LogViewer />}></Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <SpeedInsights/> {/* For Vercel Speed Insights */}
+      </TooltipProvider>
+    </QueryClientProvider>
+  )
+};
 
 export default App;

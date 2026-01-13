@@ -1,9 +1,12 @@
 #!/usr/bin/env sh
 set -e
 
-REPO="SOORAJTS2001/uplog"        # change if needed
+REPO="SOORAJTS2001/uplog"
 BIN="uplog"
-INSTALL_DIR="/usr/local/bin"
+INSTALL_DIR="$HOME/.local/bin"
+
+
+# Detect OS
 
 OS="$(uname -s | tr '[:upper:]' '[:lower:]')"
 case "$OS" in
@@ -16,6 +19,8 @@ case "$OS" in
 esac
 
 
+# Detect ARCH
+
 ARCH="$(uname -m)"
 case "$ARCH" in
   x86_64|amd64) ARCH="amd64" ;;
@@ -27,28 +32,40 @@ case "$ARCH" in
 esac
 
 
+# Version
+
 VERSION="${VERSION:-latest}"
 
 if [ "$VERSION" = "latest" ]; then
-  DOWNLOAD_URL="https://github.com/$REPO/releases/latest/download/$BIN-$OS-$ARCH"
+  URL="https://github.com/$REPO/releases/latest/download/$BIN-$OS-$ARCH"
 else
-  DOWNLOAD_URL="https://github.com/$REPO/releases/download/$VERSION/$BIN-$OS-$ARCH"
+  URL="https://github.com/$REPO/releases/download/$VERSION/$BIN-$OS-$ARCH"
 fi
 
+
+# Install dir
+
+mkdir -p "$INSTALL_DIR"
 
 TMP="$(mktemp)"
-echo "Downloading $BIN for $OS/$ARCH..."
-curl -fsSL "$DOWNLOAD_URL" -o "$TMP"
-
+echo "Downloading $BIN ($OS/$ARCH)..."
+curl -fsSL "$URL" -o "$TMP"
 
 chmod +x "$TMP"
+mv "$TMP" "$INSTALL_DIR/$BIN"
 
-if [ -w "$INSTALL_DIR" ]; then
-  mv "$TMP" "$INSTALL_DIR/$BIN"
-else
-  echo "Installing to $INSTALL_DIR (sudo required)"
-  sudo mv "$TMP" "$INSTALL_DIR/$BIN"
+echo "Installed $BIN to $INSTALL_DIR/$BIN"
+
+
+# PATH check
+
+if ! echo "$PATH" | tr ':' '\n' | grep -qx "$INSTALL_DIR"; then
+  echo ""
+  echo "$INSTALL_DIR is not in your PATH"
+  echo "Add this to your shell config:"
+  echo ""
+  echo "  export PATH=\"\$PATH:$INSTALL_DIR\""
+  echo ""
 fi
 
-echo "$BIN installed at $INSTALL_DIR/$BIN"
 echo "Run: $BIN --help"

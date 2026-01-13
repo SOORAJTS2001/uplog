@@ -16,17 +16,22 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	"io"
 )
 
-var reservedCommands = []string{"list","purge","upload","delete"}
+var reservedCommands = []string{"list","purge","upload","delete","-h","-help","--h","--help"}
 
-func runArgParser() (int, int, string,[]string) {
-	poll := flag.Int("poll", constants.PollIntervalLimit, "Default polling time in milliseconds")
-	batchSize := flag.Int("batch", constants.BatchLimit, "Default polling batch")
-	tag := flag.String("tag", "", "Tag for this session")
-	flag.Parse()
-	parsed_args:=flag.Args()
-	return *poll, *batchSize, *tag,parsed_args
+func runArgParser() (int, int, string, []string) {
+	fs := flag.NewFlagSet(os.Args[0], flag.ContinueOnError)
+	fs.SetOutput(io.Discard) // silence default help/errors
+
+	poll := fs.Int("poll", constants.PollIntervalLimit, "Polling interval")
+	batch := fs.Int("batch", constants.BatchLimit, "Batch size")
+	tag := fs.String("tag", "", "Session tag")
+
+	_ = fs.Parse(os.Args[1:])
+
+	return *poll, *batch, *tag, fs.Args()
 }
 
 func reservedArgParser(args []string){
@@ -35,6 +40,7 @@ func reservedArgParser(args []string){
 	case "purge":utils.PurgeLogs(setup.DB_con)
 	case "upload":utils.UploadLog(args[1:])
 	case "delete":utils.DeleteLog(args[2],setup.DB_con)
+	default: utils.Help()
 	}
 }
 
@@ -83,6 +89,5 @@ func main() {
 	wg.Wait()
 	fmt.Println("Tailer finished.")
 	fmt.Println("Wrapper finished.")
-	wg.Done()
 	os.Remove(tmpFile)
 }
