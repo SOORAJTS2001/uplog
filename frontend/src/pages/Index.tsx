@@ -1,8 +1,8 @@
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { NavLink } from '@/components/NavLink';
-import { Terminal, Zap, Shield, Link2, ArrowRight, Play, Clock, Filter, BookOpen } from 'lucide-react';
-
+import { Terminal, Zap, Shield, Link2, ArrowRight, Play, Clock, Filter, Copy, Check, Download } from 'lucide-react';
+import { useState } from 'react';
 const Index = () => {
   const navigate = useNavigate();
 
@@ -83,6 +83,7 @@ const Index = () => {
                 See how it works
               </Button>
             </div>
+            <InstallBox />
           </div>
         </section>
         <section className="container mx-auto px-6 pb-20">
@@ -101,9 +102,9 @@ const Index = () => {
               </div>
               <div className="p-4 font-mono text-sm space-y-2">
                 $ uplog python main.py
-                </div>
               </div>
-              </div>
+            </div>
+          </div>
         </section>
 
         {/* Demo preview */}
@@ -282,5 +283,96 @@ function StepCard({ number, title, description }: { number: string; title: strin
     </div>
   );
 }
+function InstallBox() {
+  const [activeTab, setActiveTab] = useState<'unix' | 'windows'>('unix');
+  const [copied, setCopied] = useState(false);
 
+  const unixCommand = 'curl -fsSL https://uplog.live/install.sh | sh';
+  const windowsUrl = 'https://uplog.live/download/windows';
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(unixCommand);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <div
+      className="mt-6 animate-slide-up px-4 sm:px-0"
+      style={{ animationDelay: '0.25s' }}
+    >
+      <br></br>
+      <br></br>
+
+      {/* Width-constrained install box */}
+      <div className="mx-auto w-full max-w-xl rounded-xl border border-border bg-card/50 backdrop-blur-sm overflow-hidden">
+        {/* Tabs */}
+        <div className="flex border-b border-border bg-secondary/30">
+          <button
+            onClick={() => setActiveTab('unix')}
+            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'unix'
+                ? 'text-primary border-b-2 border-primary -mb-px bg-background/50'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <Terminal className="w-4 h-4" />
+              macOS / Linux
+            </span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('windows')}
+            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-colors ${
+              activeTab === 'windows'
+                ? 'text-primary border-b-2 border-primary -mb-px bg-background/50'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <span className="flex items-center justify-center gap-2">
+              <Download className="w-4 h-4" />
+              Windows
+            </span>
+          </button>
+        </div>
+
+        {/* Content */}
+        <div className="p-3">
+          {activeTab === 'unix' ? (
+            <div className="flex items-center gap-3">
+              {/* min-w-0 is REQUIRED for flex scrolling */}
+              <code className="min-w-0 flex-1 font-mono text-sm text-foreground bg-muted/50 px-4 py-2.5 rounded-lg overflow-x-auto whitespace-nowrap">
+                {unixCommand}
+              </code>
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleCopy}
+                className="shrink-0 h-9 w-9 hover:bg-primary/10 hover:text-primary"
+              >
+                {copied ? (
+                  <Check className="w-4 h-4 text-primary" />
+                ) : (
+                  <Copy className="w-4 h-4" />
+                )}
+              </Button>
+            </div>
+          ) : (
+            <a
+              href={windowsUrl}
+              className="flex items-center justify-between gap-3 font-mono text-sm text-primary hover:text-primary/80 transition-colors"
+            >
+              <span className="flex items-center gap-2">
+                <Download className="w-4 h-4" />
+                Download uplog-windows-x64.exe
+              </span>
+            </a>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 export default Index;
