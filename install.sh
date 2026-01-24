@@ -48,7 +48,7 @@ fi
 mkdir -p "$INSTALL_DIR"
 
 TMP="$(mktemp)"
-echo "Downloading $BIN ($OS/$ARCH)..."
+echo "Downloading $BIN ($OS/$ARCH) version - $VERSION"
 curl -fsSL "$URL" -o "$TMP"
 
 chmod +x "$TMP"
