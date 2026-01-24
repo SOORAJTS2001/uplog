@@ -16,7 +16,7 @@ export function LogTable({ logs, selectedLevels, autoScroll, newLogIds }: LogTab
   console.log(logs)
 
   const filteredLogs = logs.filter((log) =>
-    selectedLevels.length === 0 || selectedLevels.includes(log.log_level)
+    selectedLevels.length === 0 || selectedLevels.includes(log.level)
   );
 
   useEffect(() => {
@@ -28,7 +28,7 @@ export function LogTable({ logs, selectedLevels, autoScroll, newLogIds }: LogTab
   return (
     <div className="flex-1 glass-card overflow-hidden flex flex-col">
       {/* Header */}
-      <div className="grid grid-cols-[140px_80px_1fr] gap-4 px-4 py-3 border-b border-border/50 bg-muted/30">
+      <div className="grid grid-cols-[90px_64px_1fr] gap-3 px-4 py-2 border-b border-border/50 bg-muted/30">
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Timestamp</span>
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Level</span>
         <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Message</span>

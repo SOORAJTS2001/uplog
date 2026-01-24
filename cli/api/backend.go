@@ -16,7 +16,6 @@ import (
 )
 
 func BatchUpload(db_con *sql.DB,batch []models.LogEntry,userId string, sessionId string, tag string, retries int, backendDisabled *bool) error {
-	fmt.Println("Trying to batch upload")
 	if len(batch) == 0 {
 		return nil
 	}

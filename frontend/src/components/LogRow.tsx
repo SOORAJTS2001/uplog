@@ -8,19 +8,33 @@ interface LogRowProps {
 }
 
 export function LogRow({ log, isNew }: LogRowProps) {
-  const formattedTime = format(new Date(log.timestamp), 'HH:mm:ss.SSS');
-  const formattedDate = format(new Date(log.timestamp), 'MMM dd');
+  const date = new Date(log.timestamp);
 
   return (
-    <div className={`log-row grid grid-cols-[140px_80px_1fr] gap-4 px-4 py-3 ${isNew ? 'animate-fade-in bg-primary/5' : ''}`}>
-      <div className="flex items-center gap-2 text-muted-foreground font-mono text-sm">
-        <span className="text-foreground/70">{formattedDate}</span>
-        <span>{formattedTime}</span>
+    <div
+      className={[
+        'grid grid-cols-[90px_64px_1fr] gap-3 px-4 py-1.5',
+        'font-mono text-sm items-start',
+        isNew ? 'animate-fade-in bg-primary/5' : ''
+      ].join(' ')}
+    >
+      {/* Timestamp (compact) */}
+      <div className="text-muted-foreground leading-tight">
+        <div className="text-foreground/70 text-xs">
+          {format(date, 'MMM dd')}
+        </div>
+        <div className="text-xs">
+          {format(date, 'HH:mm:ss')}
+        </div>
       </div>
-      <div className="flex items-center">
-        <LogLevelBadge level={log.log_level} />
+
+      {/* Level (tight) */}
+      <div className="flex items-start">
+        <LogLevelBadge level={log.level} />
       </div>
-      <div className="font-mono text-sm text-foreground/90 break-all">
+
+      {/* Message (gets space) */}
+      <div className="text-foreground/90 whitespace-pre-wrap break-words leading-relaxed">
         {log.message}
       </div>
     </div>

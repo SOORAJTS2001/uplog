@@ -55,7 +55,7 @@ const generateMockLog = (): LogEntry => {
     id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     message: messages[selectedLevel][Math.floor(Math.random() * messages[selectedLevel].length)],
     timestamp: new Date().toISOString(),
-    log_level: selectedLevel,
+    level: selectedLevel,
   };
 };
 

@@ -56,7 +56,6 @@ func main() {
 	setup.Setup(true)
 	pollInterval, batchSize, tag,parsed_args := runArgParser()
 	command,commandArgs = parsed_args[0],parsed_args[1:]
-	fmt.Println(pollInterval,batchSize,tag)
 	db.UpsertSessionById(setup.DB_con,utils.NewSession(setup.SessionId,tag,setup.UserId))
 	wg := &sync.WaitGroup{}
 	tmpFile := filepath.Join(constants.TmpDir, setup.SessionId+".log")
@@ -68,7 +67,6 @@ func main() {
 
 	// --- Start executor in foreground ---
 	executorArgs := append([]string{command}, commandArgs...)
-	fmt.Println(executorArgs)
 	wg.Add(1)
 	go executor.Executor(wg, executorArgs,setup.SessionId, tmpFile)
 
@@ -82,12 +80,8 @@ func main() {
 		os.Exit(1)
 	}()
 
-	// Wait for executor to finish
-	fmt.Println("Executor finished.")
 
 	// Wait for tailer to finish
 	wg.Wait()
-	fmt.Println("Tailer finished.")
-	fmt.Println("Wrapper finished.")
 	os.Remove(tmpFile)
 }

@@ -21,7 +21,6 @@ var backendDisabled bool = false
 
 func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string, sessionId string,filePath string) {
 	defer wg.Done()
-	fmt.Println("Poll:", pollInterval, "Batch:", batchSize)
 
 	watcher, err := fsnotify.NewWatcher()
 	if err != nil {
@@ -33,7 +32,6 @@ func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string
 		log.Fatal(err)
 	}
 
-	fmt.Println("Watching:", filePath)
 
 	var lastSize int = 0
 
@@ -44,7 +42,6 @@ func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string
 			if event.Op&fsnotify.Write != fsnotify.Write {
 				continue
 			}
-			fmt.Println("New write found")
 			f, _ := os.Open(filePath)
 			f.Seek(int64(lastSize), 0)
 			scanner := bufio.NewScanner(f)
@@ -73,7 +70,6 @@ func Tail(wg *sync.WaitGroup,pollInterval time.Duration,batchSize int,tag string
 					}
 					batchedLogs = append(batchedLogs, entry)
 
-					fmt.Println("LOG CONTENT:", content)
 				}
 				lastSize = lastSize + len(line)
 			}

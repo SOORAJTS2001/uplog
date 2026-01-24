@@ -18,10 +18,15 @@ const levelColors: Record<LogLevel, string> = {
 
 export function LogFilter({ selectedLevels, onToggleLevel }: LogFilterProps) {
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-sm text-muted-foreground mr-1">Filter:</span>
+    <div className="flex items-center gap-2 flex-wrap">
+      {/* Hide label on mobile */}
+      <span className="hidden sm:inline text-sm text-muted-foreground mr-1">
+        Filter:
+      </span>
+
       {levels.map((level) => {
         const isActive = selectedLevels.includes(level);
+
         return (
           <Button
             key={level}
@@ -30,8 +35,16 @@ export function LogFilter({ selectedLevels, onToggleLevel }: LogFilterProps) {
             onClick={() => onToggleLevel(level)}
             data-active={isActive}
             className={cn(
-              'h-7 px-2.5 text-xs font-mono uppercase border-border/50 transition-all',
+              // Base
+              'font-mono uppercase border-border/50 transition-all',
+
+              // Mobile-friendly sizing
+              'h-8 px-3 text-xs sm:h-7 sm:px-2.5',
+
+              // Active colors
               levelColors[level],
+
+              // Inactive state
               !isActive && 'text-muted-foreground hover:text-foreground'
             )}
           >

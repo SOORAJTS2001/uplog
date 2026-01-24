@@ -4,7 +4,7 @@ export interface LogEntry {
   id: string;
   message: string;
   timestamp: string;
-  log_level: LogLevel;
+  level: LogLevel;
 }
 
 export interface LogStream {

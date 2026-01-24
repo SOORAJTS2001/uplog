@@ -27,7 +27,7 @@ export async function* connectSSE(
       const batch = parsed.map((item) => ({
         message: String(item.message),
         timestamp: String(item.timestamp),
-        log_level: item.log_level as LogLevel,
+        level: item.level as LogLevel,
       }));
 
       if (resolveNext) {

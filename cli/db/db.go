@@ -5,7 +5,7 @@ import (
 	"cli/models"
 	"database/sql"
 	"fmt"
-	_ "github.com/mattn/go-sqlite3"
+	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
 )
@@ -16,7 +16,7 @@ func dbPath() string {
 
 func InitDB() *sql.DB {
 	var err error
-	db, err := sql.Open("sqlite3", dbPath())
+	db, err := sql.Open("sqlite", dbPath())
 	if err != nil {
 		fmt.Printf("failed to open sqlite: %v\n", err)
 		os.Exit(1)
