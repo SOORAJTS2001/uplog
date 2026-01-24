@@ -88,10 +88,26 @@ export default function Documentation() {
                 <span className="text-accent font-bold text-sm">1</span>
               </div>
               <div className="space-y-3 flex-1">
-                <h3 className="font-semibold text-foreground">Create a Stream</h3>
+                <h3 className="font-semibold text-foreground">Installation (Both x86 and ARM are supported)</h3>
                 <p className="text-muted-foreground text-sm">
-                  Install our lightweight cli tool `uplog`
+                  Linux / Macos
                 </p>
+                <CodeBlock
+                  language="bash"
+                  code={`curl -fsSL https://uplog.live/install.sh | sh`}
+                />
+                <p className="text-muted-foreground text-sm">
+                  Download for Windows from{" "}
+                  <a
+                    href="https://github.com/SOORAJTS2001/uplog/releases/latest"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary underline hover:text-primary/80"
+                  >
+                    here
+                  </a>
+                </p>
+
               </div>
             </div>
 
@@ -100,12 +116,12 @@ export default function Documentation() {
                 <span className="text-accent font-bold text-sm">2</span>
               </div>
               <div className="space-y-3 flex-1">
-                <p className="text-muted-foreground text-sm">
-                  Run your code with our tool
-                </p>
+                <h3 className="font-semibold text-foreground">
+                  Usage
+                </h3>
                 <CodeBlock
                   language="bash"
-                  code={`$ uplog python main.py`}
+                  code={`$ uplog <executable>`}
                 />
               </div>
             </div>
@@ -123,24 +139,61 @@ export default function Documentation() {
             </div>
           </div>
         </Section>
+        <Section title="Advanced Usage">
+  <p className="text-sm text-muted-foreground">
+    Set batch upload size
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog --poll <batch_size> <executable>`}
+  />
+
+  <p className="text-sm text-muted-foreground mt-4">
+    Tag a session
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog --tag <tag> <executable>`}
+  />
+
+  <p className="text-sm text-muted-foreground mt-4">
+    You can tag and batch at the same time
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog --poll <batch_size> --tag <tag> <executable>`}
+  />
+
+  <p className="text-sm text-muted-foreground mt-4">
+    List all recorded sessions
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog list`}
+  />
+
+  <p className="text-sm text-muted-foreground mt-4">
+    Delete all recorded sessions
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog purge`}
+  />
+
+  <p className="text-sm text-muted-foreground mt-4">
+    Delete a single session
+  </p>
+  <CodeBlock
+    language="bash"
+    code={`uplog delete <session_id>`}
+  />
+</Section>
 
         {/* Log Format */}
         <Section
-          title="Log Format"
-          description="Structure your log entries using our simple JSON schema."
+          title="Log Levels"
         >
-          <div className="space-y-4">
-            <CodeBlock
-              language="json"
-              code={`{
-  "message": "string",      // Required: Log message content
-  "timestamp": "datetime",  // Required: ISO 8601 format
-  "log_level": "enum"       // Required: ERROR | WARN | INFO | DEBUG
-}`}
-            />
-
             <div className="bg-card/30 border border-border rounded-lg p-4">
-              <h4 className="font-semibold text-foreground mb-3">Log Levels</h4>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 <div className="flex items-center gap-2">
                   <span className="w-3 h-3 rounded-full bg-log-error"></span>
@@ -160,180 +213,9 @@ export default function Documentation() {
                 </div>
               </div>
             </div>
-          </div>
         </Section>
 
-        {/* Integration Examples */}
-        {/*
-        {<Section
-          title="Integration Examples"
-          description="Copy-paste examples for popular languages and frameworks."
-        >
-          <div className="space-y-8">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Node.js</h3>
-              </div>
-              <CodeBlock
-                language="javascript"
-                code={`const STREAM_ID = 'your-stream-id';
-const API_URL = \`https://api.livelogs.dev/stream/\${STREAM_ID}\`;
 
-async function sendLog(level, message) {
-  await fetch(API_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      message,
-      timestamp: new Date().toISOString(),
-      log_level: level
-    })
-  });
-}
-
-// Usage
-sendLog('INFO', 'Server started on port 3000');
-sendLog('ERROR', 'Database connection failed');`}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Python</h3>
-              </div>
-              <CodeBlock
-                language="python"
-                code={`import requests
-from datetime import datetime
-
-STREAM_ID = 'your-stream-id'
-API_URL = f'https://api.livelogs.dev/stream/{STREAM_ID}'
-
-def send_log(level: str, message: str):
-    requests.post(API_URL, json={
-        'message': message,
-        'timestamp': datetime.utcnow().isoformat() + 'Z',
-        'log_level': level
-    })
-
-# Usage
-send_log('INFO', 'Application initialized')
-send_log('WARN', 'High memory usage detected')`}
-              />
-            </div>
-
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Terminal className="w-5 h-5 text-accent" />
-                <h3 className="font-semibold text-foreground">Go</h3>
-              </div>
-              <CodeBlock
-                language="go"
-                code={`package main
-
-import (
-    "bytes"
-    "encoding/json"
-    "net/http"
-    "time"
-)
-
-const streamID = "your-stream-id"
-const apiURL = "https://api.livelogs.dev/stream/" + streamID
-
-type LogEntry struct {
-    Message   string \`json:"message"\`
-    Timestamp string \`json:"timestamp"\`
-    LogLevel  string \`json:"log_level"\`
-}
-
-func sendLog(level, message string) error {
-    entry := LogEntry{
-        Message:   message,
-        Timestamp: time.Now().UTC().Format(time.RFC3339),
-        LogLevel:  level,
-    }
-    body, _ := json.Marshal(entry)
-    _, err := http.Post(apiURL, "application/json", bytes.NewBuffer(body))
-    return err
-}
-
-// Usage
-// sendLog("INFO", "Service started")
-// sendLog("DEBUG", "Processing request")`}
-              />
-            </div>
-          </div>
-        </Section>}
-                */}
-
-        {/*
-        <Section
-          title="Receiving Logs (HTTP Streaming)"
-          description="Connect to the stream endpoint to receive logs in real-time."
-        >
-          <div className="space-y-4">
-            <p className="text-muted-foreground text-sm">
-              The dashboard automatically connects via Server-Sent Events (SSE) to receive logs.
-              You can also connect programmatically:
-            </p>
-            <CodeBlock
-              language="javascript"
-              code={`const STREAM_ID = 'your-stream-id';
-const eventSource = new EventSource(
-  \`https://api.livelogs.dev/stream/\${STREAM_ID}/subscribe\`
-);
-
-eventSource.onmessage = (event) => {
-  const log = JSON.parse(event.data);
-  console.log(\`[\${log.log_level}] \${log.message}\`);
-};
-
-eventSource.onerror = (error) => {
-  console.error('Stream connection error:', error);
-};
-
-// Close connection when done
-// eventSource.close();`}
-            />
-          </div>
-        </Section>
-        HTTP Streaming */}
-
-        {/*
-        <Section title="Best Practices">
-          <div className="grid md:grid-cols-2 gap-4">
-            <div className="bg-card/30 border border-border rounded-lg p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <Zap className="w-4 h-4 text-accent" />
-                <h4 className="font-semibold text-foreground">Batch Logs</h4>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                For high-volume applications, batch multiple log entries into a single request to reduce overhead.
-              </p>
-            </div>
-            <div className="bg-card/30 border border-border rounded-lg p-4 space-y-2">
-              <div className="flex items-center gap-2">
-                <Send className="w-4 h-4 text-accent" />
-                <h4 className="font-semibold text-foreground">Async Logging</h4>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Send logs asynchronously to avoid blocking your main application thread.
-              </p>
-            </div>
-          </div>
-        </Section>
-
-        <div className="text-center py-8">
-          <NavLink to="/">
-            <Button variant="hero" size="lg" className="font-semibold">
-              Try
-            </Button>
-          </NavLink>
-        </div>
-        */}
       </main>
 
       {/* Footer */}

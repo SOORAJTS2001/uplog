@@ -35,7 +35,7 @@ curl -fsSL https://uplog.live/install.sh | sh
 ```
 
 - Windows
-    - Download executables from [here](https://github.com/SOORAJTS2001/uplog/releases)
+    - Download executables from [releases](https://github.com/SOORAJTS2001/uplog/releases)
 
 ### Breakdown
 
@@ -57,6 +57,35 @@ for i in range(10):
 
 ```bash
 uplog python main.py
+```
+
+Set batch upload size
+
+```bash
+uplog --poll <batch_size> python main.py
+```
+
+Tag a session
+
+```bash
+uplog --tag <tag> python main.py
+```
+
+Note: You could tag and batch at the same time
+
+List all recorded sessions
+```bash
+uplog list
+```
+
+Delete all  recorded sessions
+```bash
+uplog purge
+```
+
+Delete a single session
+```bash
+uplog delete <session_id>
 ```
 
 These logs are intermediately written to temporary log files, which would be deleted after successful log update
