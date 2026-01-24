@@ -39,7 +39,7 @@ export default function Dashboard() {
     const url = window.location.href;
     await navigator.clipboard.writeText(url);
     setCopied(true);
-    toast.success('Stream URL copied to clipboard');
+    toast.success('Session URL copied to clipboard');
     setTimeout(() => setCopied(false), 2000);
   }, []);
 
@@ -93,14 +93,28 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Toolbar */}
-      <div className="border-b border-border/50 bg-card/30">
+
+      {/* Log Table */}
+      <div className="flex-1 container mx-auto px-6 py-6 flex flex-col min-h-0">
+        <LogTable
+          logs={logs}
+          selectedLevels={selectedLevels}
+          autoScroll={autoScroll}
+          newLogIds={newLogIds}
+        />
+      </div>
+
+      {/* Connection Info Footer */}
+      <footer className="fixed bottom-0 left-0 right-0 z-20 border-t border-border/50 bg-card/80 backdrop-blur">
         <div className="container mx-auto px-6 py-3">
-          <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center justify-between flex-wrap gap-4 text-xs text-muted-foreground">
             <div className="flex items-center gap-4">
               <StreamingIndicator isStreaming={isStreaming} logCount={logs.length} />
               <div className="h-4 w-px bg-border hidden sm:block" />
-              <LogFilter selectedLevels={selectedLevels} onToggleLevel={handleToggleLevel} />
+              <LogFilter
+                selectedLevels={selectedLevels}
+                onToggleLevel={handleToggleLevel}
+              />
             </div>
 
             <div className="flex items-center gap-2">
@@ -113,6 +127,7 @@ export default function Dashboard() {
                 <ArrowDown className="w-3.5 h-3.5" />
                 Auto-scroll
               </Button>
+
               <Button
                 variant="outline"
                 size="sm"
@@ -122,6 +137,7 @@ export default function Dashboard() {
                 <Trash2 className="w-3.5 h-3.5" />
                 Clear
               </Button>
+
               <Button
                 variant={isStreaming ? 'secondary' : 'default'}
                 size="sm"
@@ -143,31 +159,9 @@ export default function Dashboard() {
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Log Table */}
-      <div className="flex-1 container mx-auto px-6 py-6 flex flex-col min-h-0">
-        <LogTable
-          logs={logs}
-          selectedLevels={selectedLevels}
-          autoScroll={autoScroll}
-          newLogIds={newLogIds}
-        />
-      </div>
-
-      {/* Connection Info Footer */}
-      <footer className="border-t border-border/50 bg-card/30 py-3">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <span>Endpoint: <code className="text-foreground/70 bg-muted px-1.5 py-0.5 rounded">POST /api/demo-logs/{streamId}</code></span>
-            </div>
-            <div>
-              <span>Format: <code className="text-foreground/70 bg-muted px-1.5 py-0.5 rounded">{'{ message, timestamp, log_level }'}</code></span>
-            </div>
-          </div>
-        </div>
       </footer>
+      <div className="flex-1 container mx-auto px-2 py-2 pb-20 flex flex-col min-h-0">
+      </div>
     </div>
   );
 }

@@ -34,10 +34,11 @@ func Executor(wg *sync.WaitGroup,args []string,sessionId string,filename string)
 	end := fmt.Sprintf("</%s>",sessionId)
 	for scanner.Scan() {
 		line := scanner.Text()
+		// this is the live logs from the programme, don't comment it
+		fmt.Println(line)
 
 		line = start + line + end + "\n"
 
-		fmt.Println(line)
 		// Write live to file
 		lineBytes := []byte(line)
 		_, err = logFile.Write(lineBytes)
